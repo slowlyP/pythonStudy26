@@ -167,10 +167,95 @@ class MemberService:
 
     @classmethod
     def admin_menu(cls):
-        pass
+        if not Session.is_login() or not Session.is_admin():
+            print("\n[경고] 관리자 권한이 필요합니다.")
+            return
 
+        while True:
+            print(f"""
+[ 관리자 시스템 - 접속자 : {Session.is_admin()} ]
+1. 전체 회원목록 조회
+2. 회원 권한 변경
+3. 계정 차단/복구
+0. 메인메뉴
+""")
+            sel = input("메뉴 선택 : ").strip()
 
+            if sel == "1":
+                cls.list_member()
+            elif sel == "2":
+                cls.change_role()
+            elif sel == "3":
+                cls.toggle_active()
+            elif sel == "0":
+                break
+            else:
+                print("잘못된 접근입니다.")
 
+    @classmethod
+    def list_member(cls):
+        print("\n" + "=" * 50)
+        print(f"{'ID':<5} | {'UID':<12} | {'NAME':<10} | {'ROLE':<8} | {'STATUS'}")
+        print("=" * 50)
+
+        conn = Session.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT * FROM members ORDER BY id ASC")
+                rows = cursor.fetchall()
+                for row in rows:
+                    m = Member.from_db(row)
+                    status = "활동" if m.active else "차단"
+                    print(f"{m.id:<5} | {m.uid:<12} | {m.name:<10} | {m.role:<8} | {status}")
+
+        finally:
+            conn.close()
+
+        print("=" * 50)
+
+    @classmethod
+    def change_role(cls):
+        target_uid = input("권한을 변경할 회원의 아이디(uid): ").strip()
+        new_role = input("부여할 권한 (admin, manager, user):").strip().lower()
+
+        if new_role not in ['admin', 'manager', 'user']:
+            print("존재하지 않는 권한 타입입니다.")
+            return
+
+        conn = Session.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                sql = "UPDATE members SET role = %s WHERE uid = %s"
+                result = cursor.execute(sql, (new_role, target_uid))
+                conn.commit()
+
+                if result > 0:
+                    print(f"[{target_uid}]님의 권한이 {new_role} 으로 변경 되었습니다.")
+
+                else:
+                    print("해당 아이디를 찾을 수 없습니다.")
+        finally:
+            conn.close()
+
+    @classmethod
+    def toggle_active(cls):
+        target_uid = input("상태 변경할 회원의 아이디(uid): ").strip()
+
+        conn = Session.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT active FROM members WHERE uid = %s",(target_uid,))
+                row = cursor.fetchone()
+
+                if not row:
+                    print("해당 회원이 존재하지 않습니다.")
+                    return
+
+                new_status = not bool(row['active'])
+                cursor.execute("UPDATE members SET active = %s WHERE uid = %s",(new_status, target_uid))
+                conn.commit()
+        finally:
+            conn.close()
 
 
 

@@ -1,5 +1,7 @@
 from service import *
 from common.Session import Session
+from service.ScoreService import ScoreService
+
 
 def main():
     MemberService.load()
@@ -11,8 +13,8 @@ def main():
          MBC 아카데미 관리 시스템
         ==========================
         1. 회원가입  2. 로그인 3. 로그아웃
-        4. 회원관리  
-        5. 게시판  6. 성적관리 7. 상품몰
+        4. 회원관리[관리자] 
+        5. 정보수정  6. 성적관리 7. 상품몰
         9. 종료
         """)
         member = Session.login_member
@@ -36,10 +38,18 @@ def main():
 
         elif sel == "4":
             print("회원관리 서비스로 진입합니다.")
-            MemberService.modify()
+            MemberService.admin_menu()
 
         elif sel == "5":
-            print("게시판 서비스로 진입합니다.")
+            print("정보수정 서비스로 진입합니다.")
+            MemberService.modify()
+
+        elif sel == "6":
+            print("성적관리 서비스로 진입합니다.")
+            ScoreService.run()
+        elif sel == "9":
+            print("프로그램 종료")
+            run = False
 
 if __name__ == "__main__":
     main()

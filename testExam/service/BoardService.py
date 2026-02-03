@@ -94,6 +94,7 @@ class BoardService:
     def run(cls):
         cls.load()
 
+                cls.delete()
         while True:
             print("""
             [게시판]
@@ -110,7 +111,6 @@ class BoardService:
             elif sel == "2":
                 cls.list()
             elif sel == "3":
-                cls.delete()
             elif sel == "4":
                 cls.my_list()
             elif sel == "9":
