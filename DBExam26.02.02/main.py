@@ -1,6 +1,7 @@
 from service import *
 from common.Session import Session
 from service.ScoreService import ScoreService
+from service.BoardService import BoardService
 
 
 def main():
@@ -15,6 +16,7 @@ def main():
         1. 회원가입  2. 로그인 3. 로그아웃
         4. 회원관리[관리자] 
         5. 정보수정  6. 성적관리 7. 상품몰
+        8. 게시판
         9. 종료
         """)
         member = Session.login_member
@@ -47,6 +49,9 @@ def main():
         elif sel == "6":
             print("성적관리 서비스로 진입합니다.")
             ScoreService.run()
+        elif sel =="8":
+            print("게시판 서비스로 진입합니다.")
+            BoardService.run()
         elif sel == "9":
             print("프로그램 종료")
             run = False
